@@ -53,7 +53,7 @@ const ConversionTable = () => {
   const handleDelete = async (id: string) => {
     try {
       setDeleting(id);
-      await axios.delete(`https://currency-converter-xxl7.vercel.app/dashboard/currency-converter/api/conversion/${id}`);
+      await axios.delete(`/api/conversion/${id}`);
       setConversions(conversions.filter(conv => conv._id !== id));
     } catch (error) {
       console.error('Error deleting conversion:', error);

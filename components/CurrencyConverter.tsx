@@ -48,7 +48,7 @@ const CurrencyConverter = () => {
   const saveConversionToDb = async (rate: number, converted: number) => {
     setSavingToDb(true);
     try {
-      const response = await axios.post('https://currency-converter-xxl7.vercel.app/dashboard/currency-converter/api/conversion', {
+      const response = await axios.post('/api/conversion', {
         fromCurrency,
         toCurrency,
         amount,
