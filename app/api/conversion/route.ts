@@ -37,21 +37,29 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error saving conversion history:', error);
     return NextResponse.json(
-      { error: 'Failed to save conversion history' },
+      { error: 'Failed to save conversion history', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
+export const GET = async () => {
   try {
-    // Connect to the database
-    await connectToDatabase();
+    // Connect to the database with a timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database connection timeout')), 5000)
+    );
+    
+    const dbPromise = connectToDatabase();
+    
+    // Race the connection against a timeout
+    await Promise.race([dbPromise, timeoutPromise]);
     
     // Get all conversion history records, sorted by timestamp (newest first)
     const conversionHistory = await ConversionHistory.find({})
       .sort({ timestamp: -1 })
-      .limit(10);
+      .limit(10)
+      .lean(); // Use lean() for better performance
     
     // Return the records
     return NextResponse.json(
@@ -61,8 +69,8 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching conversion history:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch conversion history' },
+      { error: 'Failed to fetch conversion history', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
-}
+};

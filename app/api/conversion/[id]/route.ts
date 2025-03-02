@@ -9,8 +9,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Connect to the database
-    await connectToDatabase();
+    // Connect to the database with a timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database connection timeout')), 5000)
+    );
+    
+    const dbPromise = connectToDatabase();
+    
+    // Race the connection against a timeout
+    await Promise.race([dbPromise, timeoutPromise]);
     
     const id = params.id;
     
@@ -40,7 +47,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting conversion record:', error);
     return NextResponse.json(
-      { error: 'Failed to delete conversion record' },
+      { error: 'Failed to delete conversion record', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
