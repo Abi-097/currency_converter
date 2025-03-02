@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import ConversionHistory from '@/models/ConversionHistory';
+import { NextRequest } from 'next/server';
 
+// Using the correct type definitions for Next.js App Router
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
